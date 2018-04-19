@@ -5,8 +5,8 @@ import sys
 import warnings
 from astropy.io import fits
 
-# Dictionary listing aliases for metadata keys to be extracted
-key_alias_map = {
+# Dictionary of alternates for more standard metadata keys
+ALTERNATE_KEYS_MAP = {
 'spatial_axis_1_number_bins': 'NAXIS1',
 'spatial_axis_2_number_bins': 'NAXIS2',
 'start_time': 'DATE-OBS',
@@ -15,6 +15,8 @@ key_alias_map = {
 'obs_creator_name': 'OBSERVER',
 'obs_title': 'OBJECT'
 }
+ALTERNATE_KEYS = set(ALTERNATE_KEYS_MAP.keys())
+DESIRED_KEYS_FILE = 'metadata-keys.txt'
 
 def filter_file_tree(dir, pattern):
     "Generator to yield all files in the given file tree whose name matches the given pattern"
@@ -26,49 +28,50 @@ def filter_file_tree(dir, pattern):
 
 def get_desired_metadata_keys():
     "Return a list of metadata keys to be extracted"
-    # currently, we just read the header line of the sample CSV file:
-    with open('blank.csv', 'r') as in_file:
-        template = in_file.readlines()[0]
-        return template[:-1].split(',')
+    with open(DESIRED_KEYS_FILE, 'r') as mdkeys_file:
+        return mdkeys_file.read().splitlines()
+
+def handle_ctype_mapping(key, file_metadata, metadata):
+    if (key == 'CRVAL1'):
+        if 'RA' in hdu.header['CTYPE1']:
+            metadata.append( (key, str(file_metadata.get('right_ascension', ''))) )
+        elif 'DEC' in hdu.header['CTYPE1']:
+            metadata.append( (key, str(file_metadata.get('declination', ''))) )
+        else:
+            metadata.append( (key, '') )
+    elif (key == 'CRVAL2'):
+        if 'RA' in hdu.header['CTYPE2']:
+            metadata.append( (key, str(file_metadata.get('right_ascension', ''))) )
+        elif 'DEC' in hdu.header['CTYPE2']:
+            metadata.append( (key, str(file_metadata.get('declination', ''))) )
+        else:
+            metadata.append( (key, '') )
 
 def extract_metadata(file_path, hdu, desired_keys):
     """Extract the metadata from the HeaderDataUnit of the given file for the keys
        in the given list of sought keys. Return a list of metadata key/value tuples."""
     fnorp = 'file name or path'
-    aliases = key_alias_map.keys()
-    f_metadata = hdu[0].header
+    file_metadata = hdu[0].header
     metadata = []                                   # return list of metadata key/value tuples
     for key in desired_keys:
         try:
             if (key == fnorp):                              # special case: include file path
                 metadata.append( (fnorp, str(file_path)) )
-            elif (key in aliases):                          # look for aliased keys
-                aliased_key = key_alias_map[key]            # get key which is target of alias
-                metadata.append( (aliased_key, str(f_metadata.get(aliased_key, ''))) )
-            elif (key == 'CRVAL1'):
-                if 'RA' in hdu.header['CTYPE1']:
-                    metadata.append( (key, str(f_metadata.get('right_ascension', ''))) )
-                elif 'DEC' in hdu.header['CTYPE1']:
-                    metadata.append( (key, str(f_metadata.get('declination', ''))) )
-                else:
-                    metadata.append( (key, '') )
-            elif (key == 'CRVAL2'):
-                if 'RA' in hdu.header['CTYPE2']:
-                    metadata.append( (key, str(f_metadata.get('right_ascension', ''))) )
-                elif 'DEC' in hdu.header['CTYPE2']:
-                    metadata.append( (key, str(f_metadata.get('declination', ''))) )
-                else:
-                    metadata.append( (key, '') )
+            elif (key in ALTERNATE_KEYS):                   # is this an alternate key?
+                standard_key = ALTERNATE_KEYS_MAP[key]      # get more standard key
+                metadata.append( (standard_key, str(file_metadata.get(standard_key, ''))) )
+            elif (key == 'CRVAL1') or (key == 'CRVAL2'):
+                handle_ctype_mapping(key, file_metadata, metadata)
             else:                                           # just lookup the given key
-                metadata.append( (key, str(f_metadata.get(key, ''))) )
+                metadata.append( (key, str(file_metadata.get(key, ''))) )
         except KeyError:
             metadata.append( (key, '') )
     return metadata
 
 def fits_extract(file_path):
     "Extract a dictionary of metadata from the given FITS file"
+    desired_keys = get_desired_metadata_keys()
     with fits.open(file_path) as hdu:
-        desired_keys = get_desired_metadata_keys()
         metadata = extract_metadata(file_path, hdu, desired_keys)
         print("METADATA= " + str(metadata))    ##### REMOVE LATER
 
@@ -85,7 +88,7 @@ def fits_info(file_path):
                     print(key + ': ' + val)
         print()
 
-def fits_verify(file_path, problem_file):
+def fits_verify(file_path, problems_file):
     """Verify that the data in the given FITS file conforms to the FITS standard.
        Writes any verification warnings to the specified problem log file.
     """
@@ -93,7 +96,7 @@ def fits_verify(file_path, problem_file):
         with warnings.catch_warnings(record=True) as warns:
             hdu.verify('fix+warn')
             if (warns and len(warns) > 0):
-                with open(problem_file, 'a') as log:
+                with open(problems_file, 'a') as log:
                     log.write("FILE: " + file_path)
                     for warn in warns:
                         log.write(str(warn.message)+'\n')
@@ -103,7 +106,7 @@ def main(argv):
     """
     action = "info"
     fits_pat = "*.fits"
-    problem_file = "problems.txt"
+    problems_file = "problems.txt"
     usage = "Usage: fits.py [-h|--help] [--info|--extract|--verify] images_directory"
 
     # parse the command line arguments:
@@ -145,8 +148,8 @@ def main(argv):
             fits_info(file)
         elif (action == "extract"):
             fits_extract(file)
-        elif (action == "veify"):
-            fits_verify(file, problem_file)
+        elif (action == "verify"):
+            fits_verify(file, problems_file)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
