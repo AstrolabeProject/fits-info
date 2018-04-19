@@ -99,3 +99,13 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Temporary and result files
+*.tmp
+*.info
+*.meta
+
+# Editor and SCM files/directories
+*~
+RCS
+.DS_Store
