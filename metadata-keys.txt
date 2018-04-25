@@ -43,7 +43,9 @@ XPOSURE
 TELAPSE
 ORIGIN
 CRTYPE1
+CRVAL1
 CRTYPE2
+CRVAL2
 facility_name
 instrument_name
 obs_creator_name
