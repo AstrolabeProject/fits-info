@@ -3,7 +3,7 @@
 #
 # Program to view, extract, and verify metadata from on or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: All output to standard out.
+#   Last Modified: Rename command to metadata. Remove metadata output label.
 #
 
 import getopt
@@ -30,9 +30,10 @@ def action_dispatch(action, fits_file):
     "Dispatch the given FITS file to the appropriate action"
     if (action == "info"):
         fits_info(fits_file)
-    elif (action == "extract"):
-        metadata = fits_extract(fits_file)
-        print("METADATA(" + str(len(metadata)) + ")=" + str(metadata))    ##### REMOVE LATER
+    elif (action == "metadata"):
+        metadata = fits_metadata(fits_file)
+        print(str(metadata))
+        # print("METADATA(" + str(len(metadata)) + ")=" + str(metadata))
     elif (action == "verify"):
         fits_verify(fits_file)
     else:
@@ -68,7 +69,7 @@ def filter_file_tree(dir, pattern):
                 file_path = os.path.join(root,file)
                 yield file_path
 
-def fits_extract(file_path):
+def fits_metadata(file_path):
     "Return a list of key/value metadata tuples (strings) extracted from the given FITS file"
     desired_keys = get_desired_metadata_keys()
     with fits.open(file_path) as hdu:
@@ -134,11 +135,11 @@ def main(argv):
     action = "info"                             # default action
     is_file = False                             # assume directory by default
     fits_pat = "*.fits"                         # pattern for identifying FITS files
-    usage = "Usage: fits.py [-h|--help] [--info|--extract|--verify] images_path"
+    usage = "Usage: fits.py [-h|--help] [--info|--metadata|--verify] images_path"
 
     # parse the command line arguments:
     try:
-        opts, args = getopt.getopt(argv,"hiv",["help", "info", "extract", "verify"])
+        opts, args = getopt.getopt(argv,"himv",["help", "info", "metadata", "verify"])
     except getopt.GetoptError:
         print(usage)
         sys.exit(-1)
@@ -155,8 +156,8 @@ def main(argv):
             sys.exit(2)
         elif opt in ("--info"):
             action = "info"
-        elif opt in ("--extract"):
-            action = "extract"
+        elif opt in ("--metadata"):
+            action = "metadata"
         elif opt in ("--verify"):
             action = "verify"
         else:
