@@ -1,0 +1,9 @@
+# build
+dk build -t fits-info .
+
+# run examples:
+dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --verify /data
+
+dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --info /data/Hunter/cvnidwabcut.fits
+
+dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/Hunter
