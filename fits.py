@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+#
+# Program to view, extract, and verify metadata from on or more FITS files.
+#   Written by: Tom Hicks. 4/24/2018.
+#   Last Modified: All output to standard out.
+#
+
 import getopt
 import os
 import fnmatch
@@ -91,10 +97,9 @@ def fits_verify(file_path):
         with warnings.catch_warnings(record=True) as warns:
             hdu.verify('fix+warn')
             if (warns and len(warns) > 0):
-                with open(problems_file, 'a') as log:
-                    log.write("Filename: " + file_path)
-                    for warn in warns:
-                        log.write(str(warn.message)+'\n')
+                print("Filename: " + file_path)
+                for warn in warns:
+                    print(str(warn.message))
 
 def get_desired_metadata_keys():
     "Return a list of metadata keys to be extracted"
