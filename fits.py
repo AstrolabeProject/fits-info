@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #
-# Program to view, extract, and verify metadata from on or more FITS files.
+# Program to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
 #   Last Modified: Rename command to metadata. Remove metadata output label.
 #
