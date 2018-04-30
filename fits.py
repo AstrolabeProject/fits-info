@@ -3,7 +3,7 @@
 #
 # Program to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: Find metadata keys file in current dir.
+#   Last Modified: Verify FITS path info later.
 #
 
 import getopt
@@ -144,16 +144,10 @@ def main(argv):
         print(usage)
         sys.exit(-1)
 
-    # check the image file or directory path argument, if given
-    if ((len(args) < 1) or (not args[0].strip())):
-        print("Error: Missing required argument: path to image file or images directory")
-        print(usage)
-        sys.exit(1)
-
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             print(usage)
-            sys.exit(2)
+            sys.exit(1)
         elif opt in ("--info"):
             action = "info"
         elif opt in ("--metadata"):
@@ -163,7 +157,13 @@ def main(argv):
         else:
             print("Error: Unrecognized command line option")
             print(usage)
-            sys.exit(3)
+            sys.exit(2)
+
+    # check the image file or directory path argument, if given
+    if ((len(args) < 1) or (not args[0].strip())):
+        print("Error: Missing required argument: path to image file or images directory")
+        print(usage)
+        sys.exit(3)
 
     # insure that the given path refers to a readable file or valid directory
     images_path = args[0].strip()                   # already insured non-empty above
