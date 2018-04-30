@@ -15,7 +15,9 @@ RUN apt-get remove -y python3-pip && \
 # mount point for external user data volume
 RUN mkdir /data
 
-COPY fits.py /
-COPY metadata-keys.txt /
+WORKDIR /fits
+COPY metadata-keys.txt .
+COPY fits.py .
 
-ENTRYPOINT ["/fits.py"]
+ENTRYPOINT ["./fits.py"]
+CMD ["--help"]
