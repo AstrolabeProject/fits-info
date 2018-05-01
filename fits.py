@@ -3,7 +3,7 @@
 #
 # Program to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: Verify FITS path info later.
+#   Last Modified: Must use absolute filepath on Cyverse.
 #
 
 import getopt
@@ -24,7 +24,7 @@ ALTERNATE_KEYS_MAP = {
 'obs_title': 'OBJECT'
 }
 ALTERNATE_KEYS = set(ALTERNATE_KEYS_MAP.keys())
-DESIRED_KEYS_FILE = './metadata-keys.txt'
+DESIRED_KEYS_FILE = '/fits/metadata-keys.txt'
 
 def action_dispatch(action, fits_file):
     "Dispatch the given FITS file to the appropriate action"
