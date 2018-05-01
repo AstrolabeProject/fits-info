@@ -1,9 +1,26 @@
-# build
+# build fits-info image
 dk build -t fits-info .
 
-# run examples:
+## Run examples:
+
+# show help info:
+dk run --rm fits-info
+
+# explicitly call for help info:
+dk run --rm fits-info --help
+
+# verify all FITS files in /data and below:
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --verify /data
 
+# show info on a single FITS file:
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --info /data/Hunter/cvnidwabcut.fits
 
+# extract metadata for all FITS files in given directory:
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/Hunter
+
+# no FITS files in this directory to extract metadata from:
+dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/MSMA
+
+# extract metadata from compressed FITS files (not yet working):
+# dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/SDSS-fits
+# dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/js9/fits
