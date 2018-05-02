@@ -3,7 +3,7 @@
 #
 # Program to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: Take optional keyfile argument. Pass options dictionary.
+#   Last Modified: Dont change metadata value types. Filter missing values.
 #
 
 import getopt
@@ -53,11 +53,11 @@ def extract_metadata(file_path, hdu, desired_keys):
                 metadata.append( (fnorp, str(file_path)) )
             elif (key in ALTERNATE_KEYS):                   # is this an alternate key?
                 standard_key = ALTERNATE_KEYS_MAP[key]      # get more standard key
-                metadata.append( (key, str(file_metadata.get(standard_key, ''))) )
+                metadata.append( (key, file_metadata.get(standard_key)) )
             elif ((key == 'CRVAL1') or (key == 'CRVAL2')):
                 handle_ctype_mapping(key, file_metadata, metadata)
             else:                                           # just lookup the given key
-                metadata.append( (key, str(file_metadata.get(key, ''))) )
+                metadata.append( (key, file_metadata.get(key)) )
         except KeyError:
             metadata.append( (key, '') )
     return metadata
@@ -75,7 +75,8 @@ def fits_metadata(file_path, options):
     desired_keys = get_metadata_keys(options)
     with fits.open(file_path) as hdu:
         metadata = extract_metadata(file_path, hdu, desired_keys)
-    return metadata
+    # filter out any metadata key/value pairs without values
+    return [md for md in metadata if md[1]]
 
 def fits_info(file_path, options):
     "Print the Header Data Unit information for the given FITS file"
@@ -115,19 +116,19 @@ def handle_ctype_mapping(key, file_metadata, metadata):
        For CRVALs and how they relate to CRTYPEs see https://fits.gsfc.nasa.gov/fits_standard.html
     """
     if (key == 'CRVAL1'):
-        metadata.append( ('CRVAL1', str(file_metadata.get('CRVAL1', ''))) )
+        metadata.append( ('CRVAL1', file_metadata.get('CRVAL1')) )
         if 'RA' in file_metadata['CTYPE1']:
-            metadata.append( ('right_ascension', str(file_metadata.get('CRVAL1', ''))) )
+            metadata.append( ('right_ascension', file_metadata.get('CRVAL1')) )
         elif 'DEC' in file_metadata['CTYPE1']:
-            metadata.append( ('declination', str(file_metadata.get('CRVAL1', ''))) )
+            metadata.append( ('declination', file_metadata.get('CRVAL1')) )
         else:
             metadata.append( (key, '') )
     elif (key == 'CRVAL2'):
-        metadata.append( ('CRVAL2', str(file_metadata.get('CRVAL2', ''))) )
+        metadata.append( ('CRVAL2', file_metadata.get('CRVAL2')) )
         if 'RA' in file_metadata['CTYPE2']:
-            metadata.append( ('right_ascension', str(file_metadata.get('CRVAL2', ''))) )
+            metadata.append( ('right_ascension', file_metadata.get('CRVAL2')) )
         elif 'DEC' in file_metadata['CTYPE2']:
-            metadata.append( ('declination', str(file_metadata.get('CRVAL2', ''))) )
+            metadata.append( ('declination', file_metadata.get('CRVAL2')) )
         else:
             metadata.append( (key, '') )
 
