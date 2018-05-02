@@ -18,6 +18,9 @@ dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/
 # extract metadata for all FITS files in given directory:
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/Hunter
 
+# extract metadata for all FITS files in given directory, using an alternate keyset:
+dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --keyfile /tmp/md-keys.txt --metadata /data/Hunter
+
 # no FITS files in this directory to extract metadata from:
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/MSMA
 
