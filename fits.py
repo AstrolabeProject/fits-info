@@ -3,7 +3,7 @@
 #
 # Program to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: Must use absolute filepath on Cyverse.
+#   Last Modified: Take optional keyfile argument. Pass options dictionary.
 #
 
 import getopt
@@ -24,18 +24,19 @@ ALTERNATE_KEYS_MAP = {
 'obs_title': 'OBJECT'
 }
 ALTERNATE_KEYS = set(ALTERNATE_KEYS_MAP.keys())
-DESIRED_KEYS_FILE = '/fits/metadata-keys.txt'
+DEFAULT_KEYS_FILE = '/fits/metadata-keys.txt'
 
-def action_dispatch(action, fits_file):
+def action_dispatch(fits_file, options):
     "Dispatch the given FITS file to the appropriate action"
+    action = options.get("action", "info")
     if (action == "info"):
-        fits_info(fits_file)
+        fits_info(fits_file, options)
     elif (action == "metadata"):
-        metadata = fits_metadata(fits_file)
+        metadata = fits_metadata(fits_file, options)
         print(str(metadata))
         # print("METADATA(" + str(len(metadata)) + ")=" + str(metadata))
     elif (action == "verify"):
-        fits_verify(fits_file)
+        fits_verify(fits_file, options)
     else:
         print("Error: Unrecognized action: '{}'".format(action))
         sys.exit()
@@ -69,14 +70,14 @@ def filter_file_tree(dir, pattern):
                 file_path = os.path.join(root,file)
                 yield file_path
 
-def fits_metadata(file_path):
+def fits_metadata(file_path, options):
     "Return a list of key/value metadata tuples (strings) extracted from the given FITS file"
-    desired_keys = get_desired_metadata_keys()
+    desired_keys = get_metadata_keys(options)
     with fits.open(file_path) as hdu:
         metadata = extract_metadata(file_path, hdu, desired_keys)
     return metadata
 
-def fits_info(file_path):
+def fits_info(file_path, options):
     "Print the Header Data Unit information for the given FITS file"
     with fits.open(file_path) as hdus:
         print(hdus.info())
@@ -89,7 +90,7 @@ def fits_info(file_path):
                     print(key + ': ' + val)
         print()
 
-def fits_verify(file_path):
+def fits_verify(file_path, options):
     """Verify that the data in the given FITS file conforms to the FITS standard.
        Writes any verification warnings to the specified problem log file.
     """
@@ -102,9 +103,10 @@ def fits_verify(file_path):
                 for warn in warns:
                     print(str(warn.message))
 
-def get_desired_metadata_keys():
+def get_metadata_keys(options):
     "Return a list of metadata keys to be extracted"
-    with open(DESIRED_KEYS_FILE, 'r') as mdkeys_file:
+    keyfile = options.get("keyfile", DEFAULT_KEYS_FILE)
+    with open(keyfile, 'r') as mdkeys_file:
         return mdkeys_file.read().splitlines()
 
 def handle_ctype_mapping(key, file_metadata, metadata):
@@ -132,15 +134,16 @@ def handle_ctype_mapping(key, file_metadata, metadata):
 
 def main(argv):
     "Perform actions on a FITS file or a directory of FITS files."
-    action = "info"                             # default action
+    options = { "action": "info", "keyfile": DEFAULT_KEYS_FILE }
     is_file = False                             # assume directory by default
     fits_pat = "*.fits"                         # pattern for identifying FITS files
-    usage = "Usage: fits.py [-h|--help] [--info|--metadata|--verify] images_path"
+    usage = "Usage: fits.py [-h|--help] [--info|--metadata|--verify] [--keyfile metadata-keyfile] images_path"
 
     # parse the command line arguments:
     try:
-        opts, args = getopt.getopt(argv,"himv",["help", "info", "metadata", "verify"])
-    except getopt.GetoptError:
+        opts, args = getopt.getopt(argv,"himvk",["help", "info", "metadata", "verify", "keyfile="])
+    except getopt.GetoptError as err:
+        print(err)
         print(usage)
         sys.exit(-1)
 
@@ -149,15 +152,24 @@ def main(argv):
             print(usage)
             sys.exit(1)
         elif opt in ("--info"):
-            action = "info"
+            options["action"] = "info"
         elif opt in ("--metadata"):
-            action = "metadata"
+            options["action"] = "metadata"
         elif opt in ("--verify"):
-            action = "verify"
+            options["action"] = "verify"
+        elif opt in ("--keyfile"):
+            options["keyfile"] = arg.strip()
         else:
             print("Error: Unrecognized command line option")
             print(usage)
             sys.exit(2)
+
+    # check the keyfile path argument, if given
+    keyfile = options.get("keyfile", DEFAULT_KEYS_FILE)
+    if ((len(keyfile) < 1) or (not os.path.isfile(keyfile))):
+        print("Error: --keyfile argument must specify the path to a readable key file")
+        print(usage)
+        sys.exit(4)
 
     # check the image file or directory path argument, if given
     if ((len(args) < 1) or (not args[0].strip())):
@@ -169,21 +181,21 @@ def main(argv):
     images_path = args[0].strip()                   # already insured non-empty above
     if (not os.path.exists(images_path)):
         print("Error: Specified images path '{}' not found or is not readable".format(images_path))
-        sys.exit(4)
+        sys.exit(5)
 
     if (not os.access(images_path, os.R_OK)):
         print("Error: Specified images path '{}' is not readable".format(images_path))
-        sys.exit(5)
+        sys.exit(6)
 
     if (os.path.isfile(images_path)):
-        action_dispatch(action, images_path)
+        action_dispatch(images_path, options)
     else:
         if (not os.path.isdir(images_path)):
             print("Error: Specified images path '{}' is not a file or a directory".format(images_path))
-            sys.exit(5)
+            sys.exit(7)
         else:
             for fits_file in filter_file_tree(images_path, fits_pat):
-                action_dispatch(action, fits_file)
+                action_dispatch(fits_file, options)
 
 
 if __name__ == '__main__':
