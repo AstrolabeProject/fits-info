@@ -7,7 +7,7 @@ ENV TERM="xterm"
 RUN apt-get update && \
     apt-get install -y python3 python3-pip
 
-RUN pip3 install astropy
+RUN pip3 install astropy python-irodsclient
 
 RUN apt-get remove -y python3-pip && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -16,7 +16,7 @@ RUN apt-get remove -y python3-pip && \
 RUN mkdir /data /fits
 
 COPY metadata-keys.txt /fits
-COPY fits.py /fits
+COPY *.py /fits/
 
-ENTRYPOINT ["/fits/fits.py"]
+ENTRYPOINT ["/fits/main.py"]
 CMD ["--help"]
