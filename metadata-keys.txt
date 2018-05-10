@@ -1,4 +1,4 @@
-file name or path
+filepath
 dataproduct_type
 calibration_level
 target_name

@@ -1,7 +1,7 @@
 #
 # Module to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: Refactor FITS handling to module.
+#   Last Modified: Rename special case filepath key.
 #
 import warnings
 from astropy.io import fits
@@ -17,6 +17,7 @@ ALTERNATE_KEYS_MAP = {
 'obs_title': 'OBJECT'
 }
 ALTERNATE_KEYS = set(ALTERNATE_KEYS_MAP.keys())
+FILEPATH_KEY = 'filepath'
 
 def action_dispatch(fits_file, options):
     "Dispatch the given FITS file to the appropriate action"
@@ -36,13 +37,12 @@ def action_dispatch(fits_file, options):
 def extract_metadata(file_path, hdu, desired_keys):
     """Extract the metadata from the HeaderDataUnit of the given file for the keys
        in the given list of sought keys. Return a list of metadata key/value tuples."""
-    fnorp = 'file name or path'
     file_metadata = hdu[0].header
     metadata = []                                   # return list of metadata key/value tuples
     for key in desired_keys:
         try:
-            if (key == fnorp):                              # special case: include file path
-                metadata.append( (fnorp, str(file_path)) )
+            if (key == FILEPATH_KEY):                       # special case: include file path
+                metadata.append( (FILEPATH_KEY, str(file_path)) )
             elif (key in ALTERNATE_KEYS):                   # is this an alternate key?
                 standard_key = ALTERNATE_KEYS_MAP[key]      # get more standard key
                 metadata.append( (key, file_metadata.get(standard_key)) )
