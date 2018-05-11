@@ -15,6 +15,9 @@ dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/
 # show info on a single FITS file:
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --info /data/Hunter/cvnidwabcut.fits
 
+# show info on a single gzipped FITS file:
+dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --info /data/js9/fits/snr.fits.gz
+
 # extract metadata for all FITS files in given directory:
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/Hunter
 
@@ -25,5 +28,5 @@ dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/MSMA
 
 # extract metadata from compressed FITS files:
-# dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/SDSS-fits
-# dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/js9/fits
+dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/SDSS-fits
+dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/js9/fits
