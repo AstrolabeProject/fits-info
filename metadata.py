@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 #
-# Module to manipulate iRods metadata.
+# Module to manipulate file metadata.
 #   Written by: Tom Hicks. 5/9/2018.
-#   Last Modified: Initial creation.
+#   Last Modified: 
 #
 import getopt
 import os
