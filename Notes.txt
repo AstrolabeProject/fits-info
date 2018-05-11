@@ -24,6 +24,6 @@ dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/
 # no FITS files in this directory to extract metadata from:
 dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/MSMA
 
-# extract metadata from compressed FITS files (not yet working):
+# extract metadata from compressed FITS files:
 # dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/SDSS-fits
 # dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/js9/fits

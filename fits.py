@@ -27,7 +27,6 @@ def action_dispatch(fits_file, options):
     elif (action == "metadata"):
         metadata = fits_metadata(fits_file, options)
         print(str(metadata))
-        # print("METADATA(" + str(len(metadata)) + ")=" + str(metadata))
     elif (action == "verify"):
         fits_verify(fits_file, options)
     else:
