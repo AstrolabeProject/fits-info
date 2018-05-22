@@ -1,9 +1,10 @@
 #
 # Module to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: Rename special case filepath key.
+#   Last Modified: Call save in metadata module.
 #
 import warnings
+import metadata as md
 from astropy.io import fits
 
 # Dictionary of alternates for more standard metadata keys
@@ -26,7 +27,7 @@ def action_dispatch(fits_file, options):
         fits_info(fits_file, options)
     elif (action == "metadata"):
         metadata = fits_metadata(fits_file, options)
-        print(str(metadata))
+        md.save_iRods(fits_file, options, metadata)
     elif (action == "verify"):
         fits_verify(fits_file, options)
     else:
