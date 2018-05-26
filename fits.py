@@ -1,10 +1,11 @@
 #
 # Module to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: Call save in metadata module.
+#   Last Modified: Add action setup and cleanup methods, use for metadata.
 #
 import warnings
-import metadata as md
+import sys
+import metadata_iRods as md
 from astropy.io import fits
 
 # Dictionary of alternates for more standard metadata keys
@@ -20,19 +21,28 @@ ALTERNATE_KEYS_MAP = {
 ALTERNATE_KEYS = set(ALTERNATE_KEYS_MAP.keys())
 FILEPATH_KEY = 'filepath'
 
-def action_dispatch(fits_file, options):
+def action_setup(action, fits_file, options):
+    "Execute any initialization code before performing the specified action"
+    if (action == "metadata"):
+        md.connect(options)
+
+def action_dispatch(action, fits_file, options):
     "Dispatch the given FITS file to the appropriate action"
-    action = options.get("action", "info")
     if (action == "info"):
         fits_info(fits_file, options)
     elif (action == "metadata"):
         metadata = fits_metadata(fits_file, options)
-        md.save_iRods(fits_file, options, metadata)
+        md.save_metadata(fits_file, options, metadata)
     elif (action == "verify"):
         fits_verify(fits_file, options)
     else:
         print("Error: Unrecognized action: '{}'".format(action))
         sys.exit()
+
+def action_cleanup(action, fits_file, options):
+    "Execute any cleanup code after performing the specified action"
+    if (action == "metadata"):
+        md.disconnect(options)
 
 def extract_metadata(file_path, hdu, desired_keys):
     """Extract the metadata from the HeaderDataUnit of the given file for the keys
@@ -60,7 +70,7 @@ def fits_metadata(file_path, options):
     with fits.open(file_path) as hdu:
         metadata = extract_metadata(file_path, hdu, desired_keys)
     # filter out any metadata key/value pairs without values
-    return [md for md in metadata if md[1]]
+    return [mdata for mdata in metadata if mdata[1]]
 
 def fits_info(file_path, options):
     "Print the Header Data Unit information for the given FITS file"
