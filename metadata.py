@@ -1,15 +1,49 @@
-#!/usr/bin/env python3
-
 #
 # Module to manipulate file metadata.
 #   Written by: Tom Hicks. 5/9/2018.
-#   Last Modified: Begin metadata save with stub.
+#   Last Modified: Add connect/disconnect actions.
 #
-import getopt
 import os
-import sys
-import warnings
+from irods.session import iRODSSession
 
-def save_iRods (fits_file, options, metadata):
-    print(str(metadata))
+__SESSION__ = None
 
+def connect(options):
+    global __SESSION__
+    print("TRACE: iRods.connect")
+    try:
+        env_file = os.environ['IRODS_ENVIRONMENT_FILE']
+    except KeyError:
+        env_file = os.path.expanduser('~/.irods/irods_environment.json')
+
+    # __SESSION__ = iRODSSession(host='data.iplantcollaborative.org',
+    #                        password='password',
+    #                        port=1247, user='hickst', zone='iplant')
+    print("iRods.connect: env_file={}".format(env_file))
+    __SESSION__ = iRODSSession(irods_env_file=env_file)
+    print("iRods.connect: SESSION={}".format(__SESSION__))
+
+def disconnect(options):
+    global __SESSION__
+    print("TRACE: iRods.disconnect")
+    __SESSION__.cleanup()
+    __SESSION__ = None
+
+def test(fits_file, options):
+    global __SESSION__
+    print("TRACE: iRods.test")
+    # coll = __SESSION__.collections.get("/iplant/home/hickst/sample-data/Hunter/{}".format(fits_file))
+    coll = __SESSION__.collections.get("/iplant/home/hickst/sample-data/Hunter")
+    for obj in coll.data_objects:
+        print(obj)
+
+def save_metadata(fits_file, options, metadata):
+    global __SESSION__
+    print("TRACE: iRods.save_metadata")
+    if (__SESSION__ is None):
+        connect(options)
+    print("iRods.save_metadata: SESSION={}".format(__SESSION__))
+
+    # print(str(metadata))
+    print("TESTING: {}".format(fits_file))
+    test(fits_file, options)
