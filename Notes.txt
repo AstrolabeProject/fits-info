@@ -10,23 +10,23 @@ dk run --rm fits-info
 dk run --rm fits-info --help
 
 # verify all FITS files in /data and below:
-dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --verify /data
+dk run --rm --name fits-info -v ${SAMPLE_DATA}:/data fits-info --verify /data
 
 # show info on a single FITS file:
-dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --info /data/Hunter/cvnidwabcut.fits
+dk run --rm --name fits-info -v ${SAMPLE_DATA}:/data fits-info --info /data/Hunter/cvnidwabcut.fits
 
 # show info on a single gzipped FITS file:
-dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --info /data/js9/fits/snr.fits.gz
+dk run --rm --name fits-info -v ${SAMPLE_DATA}:/data fits-info --info /data/js9/fits/snr.fits.gz
 
 # extract metadata for all FITS files in given directory:
-dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/Hunter
+dk run --rm --name fits-info -v ${SAMPLE_DATA}:/data fits-info --metadata /data/Hunter
 
 # extract metadata for all FITS files in given directory, using an alternate keyset:
-dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --keyfile /tmp/md-keys.txt --metadata /data/Hunter
+dk run --rm --name fits-info -v ${SAMPLE_DATA}:/data -v /tmp:/tmp fits-info --keyfile /tmp/md-keys.txt --metadata /data/Hunter
 
 # no FITS files in this directory to extract metadata from:
-dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/MSMA
+dk run --rm --name fits-info -v ${SAMPLE_DATA}:/data fits-info --metadata /data/MSMA
 
 # extract metadata from compressed FITS files:
-dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/SDSS-fits
-dk run --rm --name fits-info -v /data/UAZ/iSchool/work/astrolabe_vm/sample-data/:/data fits-info --metadata /data/js9/fits
+dk run --rm --name fits-info -v ${SAMPLE_DATA}:/data fits-info --metadata /data/SDSS-fits
+dk run --rm --name fits-info -v ${SAMPLE_DATA}:/data fits-info --metadata /data/js9/fits
