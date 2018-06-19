@@ -2,7 +2,7 @@
 #
 # Program to view, extract, and/or verify metadata from one or more FITS files.
 #   Written by: Tom Hicks. 4/24/2018.
-#   Last Modified: Update to read gzipped FITS files.
+#   Last Modified: Pass action to dispatch function.
 #
 import getopt
 import os
@@ -28,7 +28,7 @@ def main(argv):
     "Perform actions on a FITS file or a directory of FITS files."
     options = { "action": "info", "keyfile": DEFAULT_KEYS_FILE }
     is_file = False                         # assume directory by default
-    usage = "Usage: fits.py [-h|--help] [--info|--metadata|--verify] [--keyfile metadata-keyfile] images_path"
+    usage = "Usage: main.py [-h|--help] [--info|--metadata|--verify] [--keyfile metadata-keyfile] images_path"
 
     # parse the command line arguments:
     try:
@@ -78,12 +78,16 @@ def main(argv):
         print("Error: Specified images path '{}' is not readable".format(images_path))
         sys.exit(6)
 
+    # figure out the action to perform on the files
+    action = options.get("action", "info")
+
+    # execute action sequence for a single file or a directory of files
     if (os.path.isfile(images_path)):
-        action_dispatch(images_path, options)
+        action_dispatch(action, images_path, options)
     else:
         if (os.path.isdir(images_path)):
             for fits_file in filter_file_tree(images_path):
-                action_dispatch(fits_file, options)
+                action_dispatch(action, fits_file, options)
         else:
             print("Error: Specified images path '{}' is not a file or directory".format(images_path))
             sys.exit(7)
