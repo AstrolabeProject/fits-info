@@ -1,3 +1,5 @@
+pip install -r requirements.txt
+
 # build fits-info image
 dk build -t fits-info .
 
